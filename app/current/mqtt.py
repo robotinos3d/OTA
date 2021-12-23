@@ -51,7 +51,7 @@ else:
 
 ########################## PUBLISH TOPICS ##########################
 
-PUB_TOPIC_DATA = UUID + '/data'
+PUB_TOPIC_DATA = UUID + '/data_4.0.4'
 PUB_TOPIC_ACK_MARLIN = UUID + '/ack/marlin'  
 PUB_TOPIC_ACK_ESP = UUID + '/ack/esp'  
 PUB_TOPIC_ACK_PHOTO = UUID + '/ack/photo'  
