@@ -4,11 +4,14 @@ import json
 def path_to_dict(path, parent_path=""):
     d = {'name': os.path.basename(path)}
 
-    if (path != "."):
+    if (parent_path != ""):
         d["path"] = parent_path + "/" + os.path.basename(path)
 
+    elif (path != "."):
+        d["path"] = os.path.basename(path)
+
     else:
-        d["path"] = "."
+        d["path"] = ""
 
     if os.path.isdir(path):
         d['type'] = "directory"
