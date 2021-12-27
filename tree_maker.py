@@ -22,7 +22,7 @@ def path_to_dict(path, parent_path=""):
     return d
 
 with open("tree.json", "w") as file:
-    file.write( json.dumps(path_to_dict('.')) )
+    file.write( json.dumps(path_to_dict('./app')) )
 
 with open("version.txt", "r+") as file:
     version = file.read()
