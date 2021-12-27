@@ -26,130 +26,61 @@ def iniciar_servidor():
 
     ap_if = network.WLAN(network.AP_IF)            # instancia el objeto -sta_if- para realizar la conexión en modo STA 
     ap_if.active(True)   
+    ap_if.config(essid="Trimaker Nebula Plus")
     print(ap_if.ifconfig())
     
     #----------------------------------------------------------------#
-
-    @WebRoute(GET, '/')                               
-    def RequestHandler(microWebSrv2, request):
-        request.Response.ReturnRedirect('/login')
-
-    #----------------------------------------------------------------#
-
-    @WebRoute(GET, '/login')
+    
+    @WebRoute(GET, '/')
     def RequestHandler(microWebSrv2, request):
         content = """
-            <!DOCTYPE html>
+        <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="viewport" content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'>
             <title>Trimaker</title>
+            <link rel="stylesheet" href="styles.css">
         </head>
-
         <body>
             <div class="container">
                 <img class="logo" src="logo.png" alt="logo trimaker">
 
-                <header>
-                    <h1 class="title">Bienvenido</h1>
-                </header>
-
+                <h1 class="title">Bienvenido</h1>
                 <h2 class="subtitle">Wi-Fi</h2>
 
-                <form action="/loading" method="post">
-                    <select name="ssid" id="ssid">
-                        <option disabled selected> Red Wifi</option>
-        """
-        
-        redes_wifi = search_wifi()
-        
-        for red in redes_wifi:
-            content += """<option value="{}"> {}</option>""".format(red, red)
-
-        content +=  """
-                    </select><br />
-
-                    <input type="password" name="password" placeholder=" Clave WIFI"><br />
-                    <input class="button" type="submit" value="Conectar">
+                <form class="form" action="/loading" method="post">
+                    <select class="form__input" name="ssid" id="ssid">
+                        <option disabled selected>Red Wifi</option>
+                        {bloque_html_1}
+                    </select>
+                    <input class="form__input" type="password" name="password" placeholder="Clave WIFI">
+                    <input class="form__input form__button" type="submit" value="Conectar">
+                    {bloque_html_2}
                 </form>
-        """
-        if credenciales_correctas == False:
-            content += """Las credenciales ingresadas son incorrectas<br /> """
-        
-        content += """
+
                 <footer>
-                    <br />
                     www.trimaker.com
                 </footer>
             </div>
-
         </body>
-
-        <style>
-            body{
-                width: 100%;
-                height: 100%;
-                background-color: #f5f5f5;
-            }
-            .container{
-                margin-top: 25vh;
-                width: 100%;
-                height: 100%;
-                font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                flex-direction: column;
-            }
-            .title{
-                font-size: 30px;
-                font-weight: 400;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            .subtitle{
-                font-size: 20px;
-                font-weight: 300;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            select{
-                border-radius: 3px;
-                border-style: solid;
-                border-color: grey 4;
-                border-width: 1px;
-                width: 306px;
-                height: 45px;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            input{
-                border-radius: 3px;
-                border-style: solid;
-                border-color: grey 4;
-                border-width: 1px;
-                width: 300px;
-                height: 40px;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            .button{
-                background-color: #0D6EFD;
-                border: 0px;
-                color: white;
-                width: 306px;
-            }
-            footer{
-                color: gray;
-            }
-            .logo{
-                width: 80px;
-            }
-        </style>
         </html>
         """
+        
+        redes_wifi = search_wifi()
+
+        bloque_html_1 = ""
+        bloque_html_2 = ""
+        
+        for red in redes_wifi:
+            bloque_html_1 += """<option value="{}"> {}</option>""".format(red, red)
+
+        if credenciales_correctas == False:
+            bloque_html_2 = """Las credenciales ingresadas son incorrectas"""
+        
+        content = content.format(bloque_html_1=bloque_html_1, bloque_html_2=bloque_html_2)
+
         request.Response.ReturnOk(content)
 
     #----------------------------------------------------------------#
@@ -166,101 +97,29 @@ def iniciar_servidor():
             password_ap  = data['password']
         except :
             request.Response.ReturnBadRequest()
-            return
 
         content   = """
-            <!DOCTYPE html>
+        <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta http-equiv="Refresh" content="13;url=http://192.168.4.1/check">
+            <meta name="viewport" content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'>
+            <meta http-equiv="Refresh" content="10;url=/check">
             <title>Trimaker</title>
+            <link rel="stylesheet" href="styles.css">
         </head>
-
         <body>
             <div class="container">
                 <img class="logo" src="logo.png" alt="logo trimaker">
-                
-                <br />
-                <header>
-                    <h1 class="subtitle">Corroborando credenciales</h1>
-                </header>
+                <h1 class="subtitle">Corroborando credenciales</h1>
+                <h1 class="subtitle">Por favor espere</h1>
                 <img class="loading" src="loading.gif" alt="loading">
-
                 <footer>
-                <br />
                 www.trimaker.com
                 </footer>
             </div>
-
         </body>
-
-        <style>
-            body{
-                width: 100%;
-                height: 100%;
-                background-color: #f5f5f5;
-            }
-            .container{
-                margin-top: 25vh;
-                width: 100%;
-                height: 100%;
-                font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                flex-direction: column;
-            }
-            .title{
-                font-size: 30px;
-                font-weight: 400;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            .subtitle{
-                font-size: 20px;
-                font-weight: 300;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            select{
-                border-radius: 3px;
-                border-style: solid;
-                border-color: grey 4;
-                border-width: 1px;
-                width: 306px;
-                height: 45px;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            input{
-                border-radius: 3px;
-                border-style: solid;
-                border-color: grey 4;
-                border-width: 1px;
-                width: 300px;
-                height: 40px;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            .button{
-                background-color: #0D6EFD;
-                border: 0px;
-                color: white;
-                width: 306px;
-            }
-            footer{
-                color: gray;
-            }
-            .logo{
-                width: 80px;
-            }
-            .loading{
-                width: 80px;
-            }
-        </style>
         </html>
         """
         request.Response.ReturnOk(content)
@@ -272,117 +131,35 @@ def iniciar_servidor():
         if credenciales_correctas:
             content = """
             <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Trimaker</title>
-        </head>
-
-        <body>
-            <div class="container">
-                <img class="logo" src="logo.png" alt="logo trimaker">
-                
-                <br />
-                <header>
-                    <h1 class="subtitle">Su impresora se encuentra conectada a Wi-Fi</h1>
-                </header>
-
-                <footer>
-                <br />
-                www.trimaker.com
-                </footer>
-            </div>
-
-        </body>
-
-        <style>
-            body{
-                width: 100%;
-                height: 100%;
-                background-color: #f5f5f5;
-            }
-            .container{
-                margin-top: 25vh;
-                width: 100%;
-                height: 100%;
-                font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                flex-direction: column;
-            }
-            .title{
-                font-size: 30px;
-                font-weight: 400;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            .subtitle{
-                font-size: 20px;
-                font-weight: 300;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            select{
-                border-radius: 3px;
-                border-style: solid;
-                border-color: grey 4;
-                border-width: 1px;
-                width: 306px;
-                height: 45px;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            input{
-                border-radius: 3px;
-                border-style: solid;
-                border-color: grey 4;
-                border-width: 1px;
-                width: 300px;
-                height: 40px;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            .button{
-                background-color: #0D6EFD;
-                border: 0px;
-                color: white;
-                width: 306px;
-            }
-            footer{
-                color: gray;
-            }
-            .logo{
-                width: 80px;
-            }
-            .loading{
-                width: 80px;
-            }
-        </style>
-        </html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'>
+                <title>Trimaker</title>
+                <link rel="stylesheet" href="styles.css">
+            </head>
+            <body>
+                <div class="container">
+                    <img class="logo" src="logo.png" alt="logo trimaker">
+                    <h1 class="subtitle">Conexion exitosa</h1>
+                    <footer>
+                    www.trimaker.com
+                    </footer>
+                </div>
+            </body>
+            </html>
             """
+            request.Response.ReturnOk(content)
         else:
-            content = """
-            <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta http-equiv="Refresh" content="1;url=http://192.168.4.1/login">
-            <title>Trimaker</title>
-        </head>
-        </html>"""  
-        request.Response.ReturnOk(content)
+            request.Response.ReturnRedirect('/')
 
     #----------------------------------------------------------------#
 
     mws2 = MicroWebSrv2()
     mws2.NotFoundURL = '/'
     mws2.SetEmbeddedConfig()
-    mws2.RootPath = '/app/lib/www/'
+    mws2.RootPath = '/app/current/lib/www/'
 
     mws2.StartManaged()
 
