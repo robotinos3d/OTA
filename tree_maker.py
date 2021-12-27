@@ -24,7 +24,3 @@ def path_to_dict(path, parent_path=""):
 with open("tree.json", "w") as file:
     file.write( json.dumps(path_to_dict('./app')) )
 
-with open("version.txt", "r+") as file:
-    version = file.read()
-    file.seek(0, 0)
-    file.write(version[0 : len(version) -1] + str(int(version[-1]) + 1) ) 
