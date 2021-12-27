@@ -16,7 +16,7 @@ def path_to_dict(path, parent_path=""):
     if os.path.isdir(path):
         d['type'] = "directory"
         d['children'] = [path_to_dict(os.path.join(path,x), d["path"]) for x in os.listdir\
-        (path) if x != ".git"]
+        (path) if (x != ".git" and x != ".version")]
     else:
         d['type'] = "file"
     return d
