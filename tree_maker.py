@@ -2,11 +2,17 @@ import os
 import json
 
 def path_to_dict(path, parent_path=""):
-    d = {'name': os.path.basename(path),
-        "path": parent_path + "/" + os.path.basename(path)}
+    d = {'name': os.path.basename(path)}
+
+    if (path != "."):
+        d["path"] = parent_path + "/" + os.path.basename(path)
+
+    else:
+        d["path"] = "."
+
     if os.path.isdir(path):
         d['type'] = "directory"
-        d['children'] = [path_to_dict(os.path.join(path,x), d["name"]) for x in os.listdir\
+        d['children'] = [path_to_dict(os.path.join(path,x), d["path"]) for x in os.listdir\
         (path) if x != ".git"]
     else:
         d['type'] = "file"
