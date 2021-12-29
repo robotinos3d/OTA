@@ -15,6 +15,7 @@ from app.current.PrinterController import PrinterController
 from app.current.config import Config
 from app.current import mqtt
 from app.current.token import Token
+from id_manager import get_id
 
 ####################### OBJETS INSTANCES #########################
 
@@ -27,7 +28,7 @@ timeout_to_send_payload = manager_config.load_config('app_config')['timeout_to_s
 
 ######################## GLOBAL CONSTANTS #########################
 
-CLIENT_ID = manager_config.load_config('wifi_config')['MAC_address'] #La constante del archivo mqtt tiene el mismo valor
+CLIENT_ID = get_id()
 IP = manager_config.load_config('mqtt_config')['server']
     
 ############################## MAIN ##############################
@@ -165,7 +166,8 @@ def start_main():
     config['client_id'] = CLIENT_ID
     config['server'] = IP
     config['ssid'] = ''     # Will look for it into Network_FSM.py machine state
-    config['wifi_pw'] = ''   
+    config['wifi_pw'] = ''
+    config['user'] = get_id()   
 
     # --------------------------- SET UP CLIENT ---------------------------
 

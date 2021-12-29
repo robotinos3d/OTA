@@ -12,20 +12,11 @@ import json
 from app.current.config import Config
 from app.current.PrinterController import PrinterController
 from app.current.CamController import CamController
+from id_manager import get_id
 
 ########################### JSON CONFIG ###########################
 
-manager_config = Config()
-
-if not manager_config.load_config('wifi_config')['MAC_address']:
-    unique_id = machine.unique_id()
-    list_mac = [x for x in str(unique_id) if x.isalpha() or x.isdigit()]
-    str_mac = ''.join(list_mac)
-    manager_config.save_config('MAC_address', str_mac)
-    UUID = str_mac
-    
-else:
-    UUID = manager_config.load_config('wifi_config')['MAC_address']
+UUID = get_id()
 
 ########################## TOPIC DIAGRAM ##########################
 
@@ -51,7 +42,7 @@ else:
 
 ########################## PUBLISH TOPICS ##########################
 
-PUB_TOPIC_DATA = UUID + '/data_4.3.0'
+PUB_TOPIC_DATA = UUID + '/data'
 PUB_TOPIC_ACK_MARLIN = UUID + '/ack/marlin'  
 PUB_TOPIC_ACK_ESP = UUID + '/ack/esp'  
 PUB_TOPIC_ACK_PHOTO = UUID + '/ack/photo'  

@@ -6,12 +6,10 @@
 # Various improvements contributed by Kevin Köck.
 
 #from Network_Credentials_Manager import SSID_Pass
-from app.current.Network_FSM import NetworkFSM
-from network_controller import NetworkController
+from app.current import Network_FSM
 #from ssid_pass_handler import SSID_Pass
 
 import gc
-from network_controller import NetworkController
 import usocket as socket
 import ustruct as struct
 
@@ -457,8 +455,8 @@ class MQTTClient(MQTT_base):
     def __init__(self, config):
         super().__init__(config)
 
-        self.network_fsm = NetworkFSM()
-        self.network_controller = NetworkController()
+
+        self.__first_wifi_conn = True     # First wifi connection try since machine was turned on
 
         self._isconnected = False  # app connection state
         keepalive = 1000 * self._keepalive  # ms
@@ -476,15 +474,33 @@ class MQTTClient(MQTT_base):
         
 
     async def wifi_connect(self):
-        self.network_fsm.connect()
 
-        if not self.network_controller.is_connected():
+        s = self._sta_if
+        s.active(True)
+
+        # ----------------------------------------------------------------------------
+        # MAXI - Start machine state for getting wifi SSID and password
+        # ----------------------------------------------------------------------------
+
+        # First wifi connection try since machine was turned on
+        if self.__first_wifi_conn:
+            ssid_passw = Network_FSM.start(network_object = s , ssid_in = self._ssid , password_in = self._wifi_pw , first_connection = True)
+            self.__first_wifi_conn = False
+        else:
+            ssid_passw = Network_FSM.start(network_object = s , ssid_in = self._ssid , password_in = self._wifi_pw , first_connection = False)
+            
+        self._ssid = ssid_passw[0]
+        self._wifi_pw = ssid_passw[1]
+
+        # Maxi - End
+
+        if not s.isconnected():
             raise OSError
 
         # Ensure connection stays up for a few secs.
         self.dprint('Checking WiFi integrity.')
         for _ in range(5):
-            if not self.network_controller.is_connected():
+            if not s.isconnected():
                 raise OSError  # in 1st 5 secs
             await asyncio.sleep(1)
         self.dprint('Got reliable connection')

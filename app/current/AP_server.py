@@ -25,8 +25,8 @@ def iniciar_servidor():
     global credenciales_correctas
 
     ap_if = network.WLAN(network.AP_IF)            # instancia el objeto -sta_if- para realizar la conexión en modo STA 
-    ap_if.active(True)   
     ap_if.config(essid="Trimaker Nebula Plus")
+    ap_if.active(True)   
     print(ap_if.ifconfig())
     
     #----------------------------------------------------------------#

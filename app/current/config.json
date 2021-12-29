@@ -22,9 +22,6 @@
     "whitebalance": "WB_NONE",
     "effect": "EFFECT_NONE",
     "framesize": "FRAME_240x240"},
-
-"wifi_config": 
-    {"MAC_address": ""},
     
 "microsd_config": 
     {"miso": 2,
