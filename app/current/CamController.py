@@ -1,7 +1,6 @@
 import machine
 import camera
 import time
-import ntptime
 
 from app.current import mqtt
 from app.current.config import Config 
@@ -28,7 +27,6 @@ class CamController:
         """
         try:
             print("\n>>> ------------------ CAMERA INIT -----------------")
-            time.sleep_ms(3000) # Wait for read logs into REPL
 
             # ----------------------------------------------------------------------------------
             # LOAD CONFIG AREA:
@@ -72,25 +70,25 @@ class CamController:
             camera.whitebalance    (self.__whitebalance[self.__cam_config['whitebalance']])
 
             print(">>> Camera configuration successfully loaded...\n")
-            time.sleep_ms(3000) # Wait for read logs into REPL
+
+            self.enable = True
         
         except Exception as e:
             print(">>> ERROR ocurred into camera init: " + str(e))
-            time.sleep_ms(3000) # Wait for read logs into REPL
 
             if str(e) != '-202':
-                print(">>> Machine reset...")
-                time.sleep_ms(5000)
-                machine.reset()
+                print(">>> Couldn't initialize the camera.")
                 
             else:
                 print(">>> Exception -202 do not block the camara...")
+
+            self.enable = False
 
     # ----------------------------------------------------------------------------------
     # METHODS AREA:
     # ----------------------------------------------------------------------------------
 
-    def take_picture(self):
+    def take_picture(self, flash=False):
         """
         Take photo and return it. 
 
@@ -100,13 +98,23 @@ class CamController:
         Return:
         - PHOTO <str>: 
         """
-        self.__flash.value(1)
-        time.sleep_ms(500)  # Stabilizing led light
-        self.__buf = camera.capture()
-        self.__flash.value(0)
+
+        # Error al inicializar la camara, no se puede tomar al fotografia
+        if not self.enable:
+            self.__buf = ""
+
+        # Fotografia sin flash
+        elif not flash:
+            self.__buf = camera.capture()
         
-        return self.__buf 
-    
+        # Fotografia con flash
+        else:
+            self.__flash.value(1)
+            time.sleep_ms(500)  # Stabilizing led light
+            self.__buf = camera.capture()
+            self.__flash.value(0)
+
+        return self.__buf
 
     def __is_number(self,s):
         """
@@ -125,8 +133,7 @@ class CamController:
         except ValueError:
             return False
 
-
-    def apply_setting(self, message):
+    def apply_setting(self, message) -> None:
         """
         Change parameter of camera
 
@@ -145,6 +152,10 @@ class CamController:
         Return:
         - None
         """
+        if (not self.enable):
+            print(">>> Message for cam settings does not match to any existing configuration. Nothing to do.")
+            return None
+
         # ----------------------------------------------------------------------------------
         # SPLIT MESSAGE: We expect messages like this ---> "cam_saturation=1" 
         # ----------------------------------------------------------------------------------
@@ -171,10 +182,8 @@ class CamController:
                 camera.flip(self.__msg_value_int)
                 self.__config.save_config("flip",self.__msg_value_int)
                 print(">>> Camera setting successfully applied!")
-                return
             else:
                 print(">>> Camera flip parameter out of range. Nothing to do.")
-                return 
 
         # ----------------------------------------------------------------------------------
         # MIRROR: 0 or 1 
@@ -184,10 +193,8 @@ class CamController:
                 camera.mirror(self.__msg_value_int)
                 self.__config.save_config("mirror",self.__msg_value_int)
                 print(">>> Camera setting successfully applied!")
-                return
             else:
                 print(">>> Camera mirror parameter out of range. Nothing to do.")
-                return
 
         # ----------------------------------------------------------------------------------
         # SATURATION: (-2.2 , 2) (default 0)
@@ -197,10 +204,8 @@ class CamController:
                 camera.saturation(self.__msg_value_int)
                 self.__config.save_config("saturation",self.__msg_value_int)
                 print(">>> Camera setting successfully applied!")
-                return
             else:
                 print(">>> Cammera saturation parameter out of range. Nothing to do.")
-                return
 
         # ----------------------------------------------------------------------------------
         # BRIGHTNESS: (-2.2 , 2) (default 0)
@@ -210,10 +215,8 @@ class CamController:
                 camera.brightness(self.__msg_value_int)
                 self.__config.save_config("brightness",self.__msg_value_int)
                 print(">>> Camera setting successfully applied!")
-                return
             else:
                 print(">>> Cammera brightness parameter out of range. Nothing to do.")
-                return
         
         # ----------------------------------------------------------------------------------
         # CONTRAST: (-2.2 , 2) (default 0)
@@ -223,10 +226,8 @@ class CamController:
                 camera.contrast(self.__msg_value_int)
                 self.__config.save_config("contrast",self.__msg_value_int)
                 print(">>> Camera setting successfully applied!")
-                return
             else:
                 print(">>> Cammera contrast parameter out of range. Nothing to do.")
-                return
 
         # ----------------------------------------------------------------------------------
         # QUALITY: (10, 63) (default 0) lower number means higher quality
@@ -236,10 +237,8 @@ class CamController:
                 camera.quality(self.__msg_value_int)
                 self.__config.save_config("quality",self.__msg_value_int)
                 print(">>> Camera setting successfully applied!")
-                return
             else:
                 print(">>> Cammera quality parameter out of range. Nothing to do.")
-                return
 
         # ----------------------------------------------------------------------------------
         # WHITEBALANCE: WB_NONE (default) WB_SUNNY WB_CLOUDY WB_OFFICE WB_HOME
@@ -249,13 +248,8 @@ class CamController:
                 camera.whitebalance(self.__whitebalance[self.__msg_value_str])
                 self.__config.save_config("whitebalance",self.__msg_value_str)
                 print(">>> Camera setting successfully applied!")
-                return
             else:
                 print(">>> Camera whitebalance parameter does not exist. Nothing to do.")
-                return
-
-        # ----------------------------------------------------------------------------------
-        # MESSAGE IS INCORRECT
-        # ----------------------------------------------------------------------------------
+                
         else:
             print(">>> Message for cam settings does not match to any existing configuration. Nothing to do.")

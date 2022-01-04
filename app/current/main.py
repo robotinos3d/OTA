@@ -167,7 +167,7 @@ def start_main():
     config['server'] = IP
     config['ssid'] = ''     # Will look for it into Network_FSM.py machine state
     config['wifi_pw'] = ''
-    config['user'] = get_id()   
+    config['user'] = CLIENT_ID   
 
     # --------------------------- SET UP CLIENT ---------------------------
 

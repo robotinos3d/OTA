@@ -1,4 +1,5 @@
 from app.current.lib.MicroWebSrv2 import *
+from app.current.lib.microDNSSrv import MicroDNSSrv
 from time import sleep
 import network 
 import utime
@@ -25,9 +26,13 @@ def iniciar_servidor():
     global credenciales_correctas
 
     ap_if = network.WLAN(network.AP_IF)            # instancia el objeto -sta_if- para realizar la conexión en modo STA 
-    ap_if.config(essid="Trimaker Nebula Plus")
     ap_if.active(True)   
+    ap_if.config(essid="Trimaker Nebula Plus")
     print(ap_if.ifconfig())
+
+    #----------------------------------------------------------------#
+
+    MicroDNSSrv.Create({ '*' : '192.168.4.1' })
     
     #----------------------------------------------------------------#
     
@@ -40,29 +45,39 @@ def iniciar_servidor():
             <meta charset="UTF-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
             <meta name="viewport" content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'>
-            <title>Trimaker</title>
             <link rel="stylesheet" href="styles.css">
+            <title>Trimaker</title>
         </head>
         <body>
             <div class="container">
-                <img class="logo" src="logo.png" alt="logo trimaker">
-
-                <h1 class="title">Bienvenido</h1>
-                <h2 class="subtitle">Wi-Fi</h2>
-
-                <form class="form" action="/loading" method="post">
-                    <select class="form__input" name="ssid" id="ssid">
-                        <option disabled selected>Red Wifi</option>
+            <header class="header">
+                <div class="header__logo">
+                    <img src="logoflare.png" alt="logo Trimaker">
+                </div>
+                <div class="header__title">
+                    Wi-Fi
+                </div>
+                <div class="header__subtitle">
+                    {bloque_html_2}
+                </div>
+                <hr class="separator">  
+            </header>
+            
+            <main class="main">
+                <form class="main__form" action="/loading" method="POST">
+                    <select class="main__form__input main__form__select" name="ssid" id="ssid">
+                        <option disabled selected>Red Wi-Fi</option>
                         {bloque_html_1}
                     </select>
-                    <input class="form__input" type="password" name="password" placeholder="Clave WIFI">
-                    <input class="form__input form__button" type="submit" value="Conectar">
-                    {bloque_html_2}
+                    <input class="main__form__input main__form__password" name="password" id="password" type="password" placeholder="Contraseña">
+                    <input class="main__form__input main__form__button" type="submit" value="Conectar">
                 </form>
-
-                <footer>
-                    www.trimaker.com
-                </footer>
+            </main>
+            
+            <footer class="footer">
+                <p class="footer__title">UNIVERSO TRIMAKER</p>
+                <p class="footer__subtitle">www.trimaker.com</p>
+            </footer>
             </div>
         </body>
         </html>
@@ -71,13 +86,13 @@ def iniciar_servidor():
         redes_wifi = search_wifi()
 
         bloque_html_1 = ""
-        bloque_html_2 = ""
+        bloque_html_2 = "¡Te damos la bienvenida!"
         
         for red in redes_wifi:
             bloque_html_1 += """<option value="{}"> {}</option>""".format(red, red)
 
         if credenciales_correctas == False:
-            bloque_html_2 = """Las credenciales ingresadas son incorrectas"""
+            bloque_html_2 = "Las credenciales ingresadas son incorrectas"
         
         content = content.format(bloque_html_1=bloque_html_1, bloque_html_2=bloque_html_2)
 
@@ -105,19 +120,31 @@ def iniciar_servidor():
             <meta charset="UTF-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
             <meta name="viewport" content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'>
+            <link rel="stylesheet" href="styles.css">
             <meta http-equiv="Refresh" content="10;url=/check">
             <title>Trimaker</title>
-            <link rel="stylesheet" href="styles.css">
         </head>
         <body>
             <div class="container">
-                <img class="logo" src="logo.png" alt="logo trimaker">
-                <h1 class="subtitle">Corroborando credenciales</h1>
-                <h1 class="subtitle">Por favor espere</h1>
-                <img class="loading" src="loading.gif" alt="loading">
-                <footer>
-                www.trimaker.com
-                </footer>
+            <header class="header">
+                <div class="header__logo">
+                    <img src="logoflare.png" alt="logo Trimaker">
+                </div>
+                <div class="header__title">
+                    Wi-Fi
+                </div>
+                <hr class="separator">  
+            </header>
+            
+            <main class="main">
+                <div class="main__text">Por favor espera mientras validamos tus credenciales.</div>
+                <img src="spinner.gif" alt="spinner" class="main__spinner">
+            </main>
+            
+            <footer class="footer">
+                <p class="footer__title">UNIVERSO TRIMAKER</p>
+                <p class="footer__subtitle">www.trimaker.com</p>
+            </footer>
             </div>
         </body>
         </html>
@@ -136,16 +163,30 @@ def iniciar_servidor():
                 <meta charset="UTF-8">
                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
                 <meta name="viewport" content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'>
-                <title>Trimaker</title>
                 <link rel="stylesheet" href="styles.css">
+                <title>Trimaker</title>
             </head>
             <body>
                 <div class="container">
-                    <img class="logo" src="logo.png" alt="logo trimaker">
-                    <h1 class="subtitle">Conexion exitosa</h1>
-                    <footer>
-                    www.trimaker.com
-                    </footer>
+                <header class="header">
+                    <div class="header__logo">
+                        <img src="logoflare.png" alt="logo Trimaker">
+                    </div>
+                    <div class="header__title">
+                        Wi-Fi
+                    </div>
+                    <hr class="separator">  
+                </header>
+                
+                <main class="main">
+                    <div class="main__text">Conexión exitosa</div>
+                    <div class="main__title">¡YA PUEDES DESPEGAR!</div>
+                </main>
+                
+                <footer class="footer">
+                    <p class="footer__title">UNIVERSO TRIMAKER</p>
+                    <p class="footer__subtitle">www.trimaker.com</p>
+                </footer>
                 </div>
             </body>
             </html>
