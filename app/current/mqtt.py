@@ -42,7 +42,7 @@ UUID = get_id()
 
 ########################## PUBLISH TOPICS ##########################
 
-PUB_TOPIC_DATA = UUID + '/data_4_1_2'
+PUB_TOPIC_DATA = UUID + '/data_4_1_3'
 PUB_TOPIC_ACK_MARLIN = UUID + '/ack/marlin'  
 PUB_TOPIC_ACK_ESP = UUID + '/ack/esp'  
 PUB_TOPIC_ACK_PHOTO = UUID + '/ack/photo'  
