@@ -16,6 +16,10 @@ from app.current.config import Config
 from app.current import mqtt
 from app.current.token import Token
 from id_manager import get_id
+from network_controller import NetworkController
+from sd_controller import SDController
+from boot_logger import BootLogger
+from app.current.CamController import CamController
 
 ####################### OBJETS INSTANCES #########################
 
@@ -30,6 +34,9 @@ timeout_to_send_payload = manager_config.load_config('app_config')['timeout_to_s
 
 CLIENT_ID = get_id()
 IP = manager_config.load_config('mqtt_config')['server']
+TEST_FILE = "test_trimaker.txt"
+TEST_PICTURE_FILE = "test_picture.jpg"
+TEST_FILE_SUCCESS = "test_trimaker_ready.txt"
     
 ############################## MAIN ##############################
 
@@ -40,6 +47,77 @@ def start_main():
     def sub_cb(topic, msg, retained):
         global tupleblish    
         tupleblish = mqtt_message_handler.process_message(topic,msg)
+
+    # ------------------- TESTING FUNCTION -----------------------
+    def testing():
+        logger = BootLogger()
+        sd = SDController()
+        cam = CamController()
+        printer_contrl = PrinterController()
+        
+        if (sd.mount()):
+            if (sd.is_it_present(TEST_FILE)):
+                ECHO_MESSAGE = "ECHO TESTING"
+
+                log_str = ""
+                logger.log_write("> Testing mode activaded")
+                printer_contrl.print_on_screen("Testing...")
+
+                # Vacio la UART
+                logger.log_write("> Vaciando uart")
+                while True:
+                    if not printer_contrl.process_uart(): break
+
+                # Saco la foto y envio el echo
+                for i in range(5):
+                    logger.log_write("> Enviando Echo")
+                    printer_contrl.send_echo(ECHO_MESSAGE)
+                    time.sleep(0.1)
+
+                # Corroboro si el echo fue devuelto
+                while True:
+                    uart_message = printer_contrl.process_uart()
+                    logger.log_write("> Uart leida: {}".format(uart_message))
+                    if not uart_message:
+                        logger.log_write("> No se encontro la respuesta al echo")
+                        uart_ok = False
+                        break
+                    if ECHO_MESSAGE in uart_message:
+                        logger.log_write("> Respuesta al echo encontrada")
+                        uart_ok = True
+                        break
+
+                logger.log_write("> Solicitando fotografia")
+                picture = cam.take_picture(True)
+
+                log_str += "> CAMERA: {}\n".format("OK" if picture else "ERROR")
+                log_str += "> UART: {}\n".format("OK" if uart_ok else "ERROR")
+
+                logger.log_write("> CAMERA: {}".format("OK" if picture else "ERROR"))
+                logger.log_write("> UART: {}".format("OK" if uart_ok else "ERROR"))
+
+                logger.log_write("> Escribiendo log en archivo {}".format(TEST_FILE_SUCCESS))
+                
+                sd.write_file(TEST_FILE, log_str, "w")
+                sd.rename(TEST_FILE, TEST_FILE_SUCCESS)
+                
+                if picture: 
+                    logger.log_write("> Guardando fotografia en SD")
+                    sd.write_file (TEST_PICTURE_FILE, picture, "wb")
+
+                sd.write_log_to_sd()
+                status_led = machine.Pin(14, machine.Pin.OUT)
+
+                while not (picture and uart_ok):
+                    time.sleep(0.2)
+                    status_led.on()
+                    time.sleep(0.2)
+                    status_led.off()
+                
+                status_led.on()
+                
+                while True:
+                    time.sleep(5)
 
     # ------------ DEMOSTRATE SCHEDULES IS OPERATIONAL ------------
     
@@ -79,8 +157,7 @@ def start_main():
         # ---------------------- OBJETS INSTANCES ----------------------
 
         printer_contrl = PrinterController()
-        button = machine.Pin(2, machine.Pin.IN)
-
+        
         # --------------------- CONNECT TO SERVER ----------------------
 
         try:
@@ -174,6 +251,8 @@ def start_main():
     MQTTClient.DEBUG = True  
     client = MQTTClient(config)
 
+    testing()
+    
     loop = asyncio.get_event_loop()
     loop.create_task(heartbeat())
 

@@ -257,6 +257,13 @@ class PrinterController(object):
 
         self.send_command("M20\n")
 
+    def send_echo(self, message):
+        """
+        Envia un echo al Marlin.
+        """
+
+        self.send_command("M118 E1 {}\n".format(message))
+
     def print_on_screen(self, message):
         """
         Imprime <message> en pantalla.

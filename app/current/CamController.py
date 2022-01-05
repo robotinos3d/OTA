@@ -5,6 +5,21 @@ import time
 from app.current import mqtt
 from app.current.config import Config 
 
+############################ SINGLETON ############################
+
+def singleton(cls):
+    instances = dict()
+
+    def wrap(*args,**kwargs):
+        if cls not in instances:
+            instances[cls] = cls(*args,**kwargs)
+        return instances[cls]
+    
+    return wrap
+
+######################## CAMCONTROLLER ########################
+
+@singleton
 class CamController:
     """
     This class is responsable for:

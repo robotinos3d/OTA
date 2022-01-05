@@ -1,6 +1,7 @@
 from app.current.lib.MicroWebSrv2 import *
 from app.current.lib.microDNSSrv import MicroDNSSrv
 from time import sleep
+from id_manager import get_id
 import network 
 import utime
 
@@ -27,7 +28,7 @@ def iniciar_servidor():
 
     ap_if = network.WLAN(network.AP_IF)            # instancia el objeto -sta_if- para realizar la conexión en modo STA 
     ap_if.active(True)   
-    ap_if.config(essid="Trimaker Nebula Plus")
+    ap_if.config(essid="Trimaker Nebula Plus - {}".format(get_id()[-4:]))
     print(ap_if.ifconfig())
 
     #----------------------------------------------------------------#

@@ -8,6 +8,7 @@ import machine
 import uos 
 import time
 import boot_logger as boot_logger
+from sd_controller import SDController
 
 ######################## GLOBAL VARIABLES #########################
 
@@ -17,7 +18,7 @@ firmware_name = None
 ######################## GLOBAL CONSTANTS #########################
 
 ENCODED_FIRMWARE_PREFIX = "firmware"
-ENCODED_FIRMWARE_EXTENSION = ".txt"
+ENCODED_FIRMWARE_EXTENSION = ".bin"
 READY_FIRMWARE_EXTENSION = ".READY"
 LABEL_NEW_FILE = "new-file"
 SEPARATOR = "|"
@@ -109,14 +110,11 @@ class SearchNewFirmwareOnSD:
         self.boot_logger.log_write("> STATE: SEARCH NEW FIRMWARE ON SD")
 
         try:
+            self.sd = SDController()
+            self.sd.mount()
             self.files = None
-            self.sd = machine.SDCard()
-            self.boot_logger.log_write("> Mounting SD card on {}".format(SD_MOUNT_PATH))
-            uos.mount(self.sd, SD_MOUNT_PATH)
-            # uos.chdir(SD_MOUNT_PATH)
-            self.boot_logger.log_write("> SD mounted successfully")
             self.files = uos.listdir(SD_MOUNT_PATH)
-            self.boot_logger.log_write("> '{}' files: ".format(SD_MOUNT_PATH) + str(self.files))
+            self.sd.umount()
 
             firmware_name = self.get_firmware_name(self.files)
 
@@ -223,6 +221,7 @@ class UnzipFirmware:
     def __init__(self):
         self.flash = Flash()
         self.boot_logger = boot_logger.BootLogger("sd_update_log.txt")
+        self.sd = SDController()
     
     def process_new_file_line(self, line_new_file):
         """
@@ -277,25 +276,28 @@ class UnzipFirmware:
         """
 
         self.boot_logger.log_write("> STATE: UNZIP FIRMWARE")
+        self.sd.mount()
 
         with open('{SD_MOUNT_PATH}/{firmware_name}'.format(
             SD_MOUNT_PATH = SD_MOUNT_PATH, 
-            firmware_name = firmware_name)) as file:
+            firmware_name = firmware_name), "rb") as file:
             
             path_file_writing = None
             writing_file = None
 
             while True:
                 if path_file_writing:
-                    writing_file = open(path_file_writing, 'a')
+                    writing_file = open(path_file_writing, 'ab')
 
                 while True:
                     line = file.readline() # Leo una linea
 
                     if not line: break # Si es la ultima linea finalizo el ciclo while
 
-                    if LABEL_NEW_FILE in line and SEPARATOR in line: # Si es una linea de new_file la proceso
-                        path_file_writing = self.process_new_file_line(line.rstrip())
+                    if bytes(LABEL_NEW_FILE + SEPARATOR, "utf-8") in line: # Si es una linea de new_file la proceso
+                        buffer_line = bytearray(len(line))
+                        buffer_line[:] = line
+                        path_file_writing = self.process_new_file_line(buffer_line.decode("utf-8").rstrip())
                         break
                     else: # Si es una linea normal, la escribo en el archivo abierto
                        writing_file.write(line) 
@@ -308,6 +310,7 @@ class UnzipFirmware:
         # uos.remove("{}/{}".format(NEW_FOLDER_PATH, firmware_name))
         # self.boot_logger.log_write("> Removing firmware zip")
         self.flash.successful()
+        self.sd.umount()
         return InstallNewFirmware()
 
             
@@ -424,6 +427,7 @@ class SendLog:
     def __init__(self):
         self.flash = Flash()
         self.boot_logger = boot_logger.BootLogger("sd_update_log.txt")
+        self.sd = SDController()
 
     def process(self):
         """
@@ -436,8 +440,7 @@ class SendLog:
         
         uos.chdir('/')
         self.boot_logger.log_write("> Sending log to SD")
-        self.boot_logger.write_log_on_sd()
-        uos.umount(SD_MOUNT_PATH)
+        self.sd.write_log_to_sd()
 
         self.flash.successful()
         end_state_flag = True 
