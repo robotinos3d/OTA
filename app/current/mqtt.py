@@ -101,7 +101,7 @@ class MQTTMessageHandler:
         self.config =              Config()
 
         self.updated_send_payload_timeout = False
-        self.working = True
+        self.working = False
 
     # -------------------- SUB_TOPIC_CONFIG_CAMERA --------------------
 
