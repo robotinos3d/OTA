@@ -5,4 +5,5 @@ Al cambiar el número de version en el archivo `version.txt` a uno mayor, los ar
 * 1.0.0 -> Versión inicial
 * 1.0.1 -> Desarrollo
 * 2.0.0 -> Versión entregada a youtubers 08/04/22
+* 2.0.1 -> Cambio de framesize de 10 a 8
 
