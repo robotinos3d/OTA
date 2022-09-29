@@ -10,4 +10,5 @@ Al cambiar el número de version en el archivo `version.txt` a uno mayor, los ar
 * 2.0.3 -> Cambio de condición de sleep para MQTT y delay para credenciales wifi. Reinicio después de actualizar.
 * 2.0.4 -> Framesize en change_settings de rango [0; 13].
 * 2.0.5 -> Elimina los tildes en mensajes al Marlin.
+* 2.1.0 -> Cambia la forma en que se reciben y transmiten los datos de la impresora (payload).
 
