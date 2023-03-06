@@ -1,3 +1,2 @@
-force_update=1
-second_flag=1
-third_flag=2
+force_update=0
+force_auth=0

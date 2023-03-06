@@ -13,3 +13,11 @@ Al cambiar el número de version en el archivo `version.txt` a uno mayor, los ar
 * 2.0.4 -> Framesize en change_settings de rango [0; 13].
 * 2.0.5 -> Elimina los tildes en mensajes al Marlin.
 * 2.1.0 -> Cambia la forma en que se reciben y transmiten los datos de la impresora (payload).
+
+## Flags implementadas
+
+Se pueden poner valores dentro del archivo `flags.txt`, que modificarán el comportamiento del firmware:
+
+* **force_update=[0|1]** : En caso de no poder conectar con el servidor de Trimaker Cloud, fuerza (1) o no fuerza (0) la actualización de OTA.
+
+* **force_auth=[0|1]** : En caso de no poder conectar con el servidor de Trimaker Cloud, da permiso (1) o no (0) de actualizar por OTA.
