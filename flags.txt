@@ -1,2 +1,2 @@
 force_update=0
-force_auth=0
+force_auth=1
