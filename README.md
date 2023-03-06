@@ -1,7 +1,9 @@
 # Actualizaciones por OTA
+
 Al cambiar el número de version en el archivo `version.txt` a uno mayor, los archivos dentro de la carpeta `www` y la versión de firmware `micropython.bin` será actualizada a todos los microcontroladores.
 
-# Historial de versiones
+## Historial de versiones
+
 * 1.0.0 -> Versión inicial
 * 1.0.1 -> Desarrollo
 * 2.0.0 -> Versión entregada a youtubers 08/04/22
@@ -11,4 +13,3 @@ Al cambiar el número de version en el archivo `version.txt` a uno mayor, los ar
 * 2.0.4 -> Framesize en change_settings de rango [0; 13].
 * 2.0.5 -> Elimina los tildes en mensajes al Marlin.
 * 2.1.0 -> Cambia la forma en que se reciben y transmiten los datos de la impresora (payload).
-
