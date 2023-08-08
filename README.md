@@ -11,4 +11,5 @@ Al cambiar el número de version en el archivo `version.txt` a uno mayor, los ar
 * 2.0.4 -> Framesize en change_settings de rango [0; 13].
 * 2.0.5 -> Elimina los tildes en mensajes al Marlin.
 * 2.1.0 -> Cambia la forma en que se reciben y transmiten los datos de la impresora (payload).
+* 2.2.0 -> Corrige la URL para checkear los flags de Django, deja de utilizar la mac para autenticarse en el broker de MQTT y empieza a utilizar el flag de github para actualizarse.
 
